@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Health App Landing Page</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/index.css">
+</head>
+<body>
+	<header>
+		<h1>{{.myName}}</h1>
+	</header>
+
+	<main>
+        <section>
+        <h2>Experiments</h2>
+        <ul>
+        {{range .experiments}}
+            <li>{{ .ID }} ||<span>{{ .Name }}</span> || {{ .Timestamp.Format "02-Jan-2006 15:04:05" }}</li>
+        {{end}}
+        </ul>
+        </section>
+        <section>
+        <div class="qr-code-placeholder">
+             <!-- QR code placeholder image here -->
+          </div>
+        </section>
+
+	</main>
+	<footer>
+		<p>&copy; 2023 Health App. All Rights Reserved.</p>
+	</footer>
+
+</body>
+</html>
