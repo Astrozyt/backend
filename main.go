@@ -50,17 +50,51 @@ func main() {
 	app.Static("/", "./public")
 	app.Use(cors.New())
 
+	//Return HTML app (via tmpl file)
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Render("index", fiber.Map{
-			"myName":      "John Doe",
+			"myName":      "My medical experiments",
 			"experiments": experiments,
 		})
+	})
+
+	app.Get("/experiment", func(c *fiber.Ctx) error {
+		rows, _ := database.Query("SELECT id, name, device, sensor_id, data, timestamp FROM experiments")
+		var experiments []experiment
+		for rows.Next() {
+			var exp experiment
+			err := rows.Scan(&exp.ID, &exp.Name, &exp.Device, &exp.SensorId, &exp.Data, &exp.Timestamp)
+			if err != nil {
+				fmt.Println("Error scanning row:", err)
+				continue
+			}
+			experiments = append(experiments, exp)
+		}
+		return c.JSON(experiments)
+	})
+
+	app.Get("/experiment/:id", func(c *fiber.Ctx) error {
+		experimentId := c.Params("id")
+		if experimentId == "" {
+			return c.Status(400).SendString("Please provide valid experiment id")
+		}
+		statement, err := database.Prepare("SELECT id, name, device, sensor_id, data, timestamp FROM experiments WHERE id = ?")
+		if err != nil {
+			return err
+		}
+		row := statement.QueryRow(experimentId)
+		var exp experiment
+		err = row.Scan(&exp.ID, &exp.Name, &exp.Device, &exp.SensorId, &exp.Data, &exp.Timestamp)
+		if err != nil {
+			return c.Status(404).SendString("Could not find experiment with id " + experimentId)
+		}
+		return c.JSON(exp)
 	})
 
 	app.Post("/experiment", func(c *fiber.Ctx) error {
 		var newExperiment experiment
 		if err := c.BodyParser(&newExperiment); err != nil {
-			return c.SendString("Please provide valid experiment data")
+			return c.Status(400).SendString("Please provide valid experiment data")
 		}
 
 		statement, err := database.Prepare("INSERT INTO experiments (name, device, sensor_id, data, timestamp) VALUES (?, ?, ?, ?, ?)")
@@ -72,13 +106,35 @@ func main() {
 			return err
 		}
 
-		return c.SendString("Experiment added successfully")
+		return c.Status(201).SendString("Experiment added successfully")
 
+	})
+
+	app.Delete("/experiment/:id", func(c *fiber.Ctx) error {
+		experimentId := c.Params("id")
+		if experimentId == "" {
+			return c.Status(400).SendString("Please provide valid experiment id")
+		}
+		statement, err := database.Prepare("DELETE FROM experiments WHERE id = ?")
+		if err != nil {
+			return err
+		}
+		_, err = statement.Exec(experimentId)
+		if err != nil {
+			return c.Status(405).SendString("Could not delete experiment with id " + experimentId)
+		}
+
+		return c.Status(200).SendString("Successfully deleted experiment with id " + experimentId)
 	})
 
 	//Return greeting on get route /greeting
 	app.Get("/greeting", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
+		return c.Status(200).SendString("Hello, World!")
+	})
+
+	//Return information on type of hardware I can currently afford
+	app.Get("/whatareyou", func(c *fiber.Ctx) error {
+		return c.SendStatus(418)
 	})
 
 	log.Fatal(app.Listen(":3000"))
