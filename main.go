@@ -26,7 +26,7 @@ var experiments = []experiment{
 }
 
 func main() {
-	database, _ := sql.Open("sqlite3", "./database.db")
+	database, _ := sql.Open("sqlite3", "./my-experiments.db")
 	statement, _ := database.Prepare("CREATE TABLE IF NOT EXISTS experiments (id INTEGER PRIMARY KEY, name TEXT, device TEXT, sensor_id TEXT, data TEXT, timestamp DATETIME)")
 	statement.Exec()
 	statement, _ = database.Prepare("INSERT INTO experiments (name, device, sensor_id, data, timestamp) VALUES (?, ?, ?, ?, ?)")
@@ -94,8 +94,12 @@ func main() {
 	app.Post("/experiment", func(c *fiber.Ctx) error {
 		var newExperiment experiment
 		if err := c.BodyParser(&newExperiment); err != nil {
+			fmt.Println("Error:")
+			fmt.Println(err)
 			return c.Status(400).SendString("Please provide valid experiment data")
 		}
+		fmt.Println("New experiment:")
+		fmt.Println(newExperiment)
 
 		statement, err := database.Prepare("INSERT INTO experiments (name, device, sensor_id, data, timestamp) VALUES (?, ?, ?, ?, ?)")
 		if err != nil {
