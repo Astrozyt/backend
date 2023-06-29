@@ -8,31 +8,37 @@ To run this application, you need to have the following installed:
 
 - Go (1.16 or higher)
 - SQLite
-- Installation
+## Installation
 - Clone the repository or download the source code.
 - Open a terminal and navigate to the project directory.
-- Setup
-- Install the necessary dependencies by running the following command:
+## Setup
+Install the necessary dependencies by running the following command:
 
-go get -u github.com/gofiber/fiber/v2
-go get -u github.com/gofiber/template/html
-go get -u github.com/mattn/go-sqlite3
+- go get -u github.com/gofiber/fiber/v2
+- go get -u github.com/gofiber/template/html
+- go get -u github.com/mattn/go-sqlite3
 
-### Build the application by running the following command:
+### Build
 
-go build
-Run the application:
-
+Build the application by moving into the directory and running the following command:
+- go build
+This will create an executable file named api in the same directory.
+### Run the application:
+Execute the executable to start the server. A SQLite database file named my-experiments.db will be created in the same directory as the executable.
 ./experiment
+
 Open your web browser and visit http://localhost:3000 to access the application.
 
 ## Functionality
 The application provides the following functionality:
 
-Display a list of experiments on the homepage.
-Add a new experiment using the provided form.
-Retrieve experiment data from the SQLite database.
-Serve static files from the public directory.
+- A webapp displaying a list of experiments (_GET_ to _/_. Open in your browser. Served from templating engine).
+- Add a new experiment using the provided form (_POST_ to _/experiment_ used by https://github.com/Greg8052/Neuro).
+- Retrieve experiment data from the SQLite database (_GET_ to _/experiment_).
+- Retrieve a greeting message (_GET_ to _/greeting_).
+- Retrieve information on type of server (_GET_ to _/whatareyou_).
+- Retrieve a single experiment in JSON format (_GET_ to _/experiment/:id_).
+- Delete an existing experiment (_DELETE_ to _/experiment/:id_).
 
 ## Database
 The application uses an SQLite database to store experiment data. The database file database.db will be created in the same directory as the application. If the file already exists, the application will use it; otherwise, it will create a new database file.
